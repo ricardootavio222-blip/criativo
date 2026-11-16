@@ -10,6 +10,9 @@ export type ContentItem = {
   status: ContentStatus;
   updatedAt: string; // ISO
   progress?: number; // 0-100
+  body?: string;
+  cta?: string;
+  imageDataUrl?: string | null;
 };
 
 export const mockDraft: ContentItem | null = {

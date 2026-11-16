@@ -1,3 +1,4 @@
+import { useNavigate } from "@tanstack/react-router";
 import { MoreHorizontal } from "lucide-react";
 import { toast } from "sonner";
 import { getFormat } from "@/data/formats";
@@ -6,22 +7,49 @@ import { Button } from "@/components/ui/button";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { StatusBadge } from "./primitives";
 
-export function Thumb({ aspect, label }: { aspect: string; label: string }) {
+export function Thumb({ aspect, label, imageDataUrl }: { aspect: string; label: string; imageDataUrl?: string | null }) {
   return (
     <div className="grid aspect-[5/4] place-items-center rounded-lg bg-surface-muted">
-      <div className="relative h-[70%] max-w-[80%] rounded-md border border-border-strong/60 bg-surface" style={{ aspectRatio: aspect }}>
-        <span className="absolute bottom-1 right-1 rounded bg-surface-muted px-1 text-[10px] font-semibold text-text-secondary">{label}</span>
+      <div
+        className="relative h-[70%] max-w-[80%] overflow-hidden rounded-md border border-border-strong/60 bg-surface"
+        style={{ aspectRatio: aspect }}
+      >
+        {imageDataUrl && (
+          <img src={imageDataUrl} alt="" aria-hidden className="absolute inset-0 h-full w-full object-cover" />
+        )}
+        <span className="absolute bottom-1 right-1 rounded bg-surface-muted/90 px-1 text-[10px] font-semibold text-text-secondary">
+          {label}
+        </span>
       </div>
     </div>
   );
 }
 
-export function ContentCard({ item }: { item: ContentItem }) {
+export function ContentCard({ item, onDelete }: { item: ContentItem; onDelete?: () => void }) {
   const f = getFormat(item.format)!;
-  const act = (a: string) => toast(`${a}: “${item.title}”`, { description: "Ação de demonstração — nada foi alterado." });
+  const navigate = useNavigate();
+
+  const open = () => navigate({ to: "/criar/$formato", params: { formato: item.format }, search: { id: item.id } });
+
+  const handle = (action: "Abrir" | "Duplicar" | "Renomear" | "Excluir") => {
+    if (action === "Abrir") return open();
+    if (action === "Excluir") {
+      if (onDelete) {
+        onDelete();
+        toast.success(`"${item.title}" excluído.`);
+      } else {
+        toast("Exclusão indisponível aqui.");
+      }
+      return;
+    }
+    toast(`${action}: "${item.title}"`, { description: "Essa ação será adicionada em breve." });
+  };
+
   return (
     <article className="flex flex-col rounded-xl border border-border bg-surface p-3 shadow-soft">
-      <Thumb aspect={f.aspect} label={f.aspectLabel} />
+      <button type="button" onClick={open} className="text-left outline-focus-ring" aria-label={`Abrir ${item.title}`}>
+        <Thumb aspect={f.aspect} label={f.aspectLabel} imageDataUrl={item.imageDataUrl} />
+      </button>
       <div className="mt-3 grid grid-cols-[minmax(0,1fr)_auto] items-start gap-2">
         <div className="min-w-0">
           <h3 className="truncate text-sm font-semibold">{item.title}</h3>
@@ -34,9 +62,13 @@ export function ContentCard({ item }: { item: ContentItem }) {
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
-            {["Abrir", "Duplicar", "Renomear"].map((a) => <DropdownMenuItem key={a} onSelect={() => act(a)}>{a}</DropdownMenuItem>)}
+            {(["Abrir", "Duplicar", "Renomear"] as const).map((a) => (
+              <DropdownMenuItem key={a} onSelect={() => handle(a)}>{a}</DropdownMenuItem>
+            ))}
             <DropdownMenuSeparator />
-            <DropdownMenuItem className="text-error focus:text-error" onSelect={() => act("Excluir")}>Excluir</DropdownMenuItem>
+            <DropdownMenuItem className="text-error focus:text-error" onSelect={() => handle("Excluir")}>
+              Excluir
+            </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
       </div>

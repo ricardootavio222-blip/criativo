@@ -5,8 +5,9 @@ import { Progress } from "@/components/ui/progress";
 import { FormatGrid } from "@/components/app/FormatGrid";
 import { ContentCard, Thumb } from "@/components/app/ContentCard";
 import { SectionHeader, StatusBadge } from "@/components/app/primitives";
-import { formatDate, mockContents, mockDraft } from "@/data/mock-content";
+import { formatDate } from "@/data/mock-content";
 import { getFormat } from "@/data/formats";
+import { useContents } from "@/hooks/use-contents";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -21,7 +22,11 @@ export const Route = createFileRoute("/")({
 });
 
 function Dashboard() {
-  const draftFormat = mockDraft ? getFormat(mockDraft.format) : null;
+  const { items } = useContents();
+  const latestDraft = items.find((c) => c.status === "rascunho") ?? null;
+  const draftFormat = latestDraft ? getFormat(latestDraft.format) : null;
+  const recent = items.slice(0, 4);
+
   return (
     <div className="space-y-12">
       <header className="grid gap-4 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-end">
@@ -35,31 +40,46 @@ function Dashboard() {
 
       <section aria-label="Formatos de conteúdo"><FormatGrid /></section>
 
-      {mockDraft && draftFormat && (
+      {latestDraft && draftFormat && (
         <section aria-labelledby="draft-h" className="space-y-4">
           <SectionHeader id="draft-h" title="Continuar último rascunho" />
           <div className="grid gap-4 rounded-xl border border-border bg-surface p-4 shadow-soft sm:grid-cols-[160px_minmax(0,1fr)_auto] sm:items-center">
-            <Thumb aspect={draftFormat.aspect} label={draftFormat.aspectLabel} />
+            <Thumb aspect={draftFormat.aspect} label={draftFormat.aspectLabel} imageDataUrl={latestDraft.imageDataUrl} />
             <div className="min-w-0 space-y-2">
-              <h3 className="font-semibold">{mockDraft.title}</h3>
-              <p className="text-sm text-text-secondary">{draftFormat.name} · Editado em <time dateTime={mockDraft.updatedAt}>{formatDate(mockDraft.updatedAt)}</time></p>
+              <h3 className="font-semibold">{latestDraft.title}</h3>
+              <p className="text-sm text-text-secondary">
+                {draftFormat.name} · Editado em <time dateTime={latestDraft.updatedAt}>{formatDate(latestDraft.updatedAt)}</time>
+              </p>
               <div className="flex items-center gap-3">
-                <StatusBadge status={mockDraft.status} />
-                <Progress value={mockDraft.progress} className="h-2 max-w-40" aria-label="Progresso" />
-                <span className="text-xs font-medium text-text-secondary">{mockDraft.progress}% concluído</span>
+                <StatusBadge status={latestDraft.status} />
+                <Progress value={latestDraft.progress ?? 0} className="h-2 max-w-40" aria-label="Progresso" />
+                <span className="text-xs font-medium text-text-secondary">{latestDraft.progress ?? 0}% concluído</span>
               </div>
             </div>
-            <Button asChild><Link to="/criar/$formato" params={{ formato: mockDraft.format }}>Continuar edição <ArrowRight /></Link></Button>
+            <Button asChild>
+              <Link to="/criar/$formato" params={{ formato: latestDraft.format }} search={{ id: latestDraft.id }}>
+                Continuar edição <ArrowRight />
+              </Link>
+            </Button>
           </div>
         </section>
       )}
 
       <div className="grid gap-12">
         <section aria-labelledby="lib-h" className="space-y-4">
-          <SectionHeader id="lib-h" title="Seus conteúdos" description="Acesse, continue ou reutilize o que você já criou." action={<Button variant="ghost" size="sm" asChild><Link to="/conteudos">Ver todos</Link></Button>} />
-          <ul className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-            {mockContents.map((c) => <li key={c.id}><ContentCard item={c} /></li>)}
-          </ul>
+          <SectionHeader
+            id="lib-h"
+            title="Seus conteúdos"
+            description="Acesse, continue ou reutilize o que você já criou."
+            action={<Button variant="ghost" size="sm" asChild><Link to="/conteudos">Ver todos</Link></Button>}
+          />
+          {recent.length === 0 ? (
+            <p className="text-sm text-text-secondary">Você ainda não criou nada. Clique em um formato acima para começar.</p>
+          ) : (
+            <ul className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+              {recent.map((c) => <li key={c.id}><ContentCard item={c} /></li>)}
+            </ul>
+          )}
         </section>
 
         <aside aria-labelledby="bk-h" className="h-fit rounded-xl border border-border bg-surface p-5 shadow-soft">
