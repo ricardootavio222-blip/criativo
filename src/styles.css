@@ -1,0 +1,127 @@
+@import "tailwindcss" source(none);
+@source "../src";
+@import "tw-animate-css";
+
+@custom-variant dark (&:is(.dark *));
+
+/*
+ * AGENCY APPLICATION DESIGN SYSTEM
+ * --------------------------------
+ * These tokens style the application interface ONLY.
+ * They are owned by the agency and must never be overridden by a client Brand Kit.
+ * Client Brand Kit values live in src/brand-kit and only apply to generated creatives.
+ * To re-theme the app, replace the values in :root below (and fonts in __root.tsx).
+ */
+
+@theme inline {
+  --font-sans: var(--font-body);
+  --font-display: var(--font-heading);
+
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+  --radius-2xl: calc(var(--radius) + 8px);
+
+  --color-background: var(--background);
+  --color-foreground: var(--text-primary);
+  --color-surface: var(--surface);
+  --color-surface-muted: var(--surface-muted);
+  --color-text-primary: var(--text-primary);
+  --color-text-secondary: var(--text-secondary);
+  --color-card: var(--surface);
+  --color-card-foreground: var(--text-primary);
+  --color-popover: var(--surface);
+  --color-popover-foreground: var(--text-primary);
+  --color-primary: var(--primary);
+  --color-primary-hover: var(--primary-hover);
+  --color-primary-soft: var(--primary-soft);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--surface-muted);
+  --color-secondary-foreground: var(--text-primary);
+  --color-muted: var(--surface-muted);
+  --color-muted-foreground: var(--text-secondary);
+  --color-accent: var(--accent);
+  --color-accent-soft: var(--accent-soft);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-success: var(--success);
+  --color-success-soft: var(--success-soft);
+  --color-warning: var(--warning);
+  --color-warning-soft: var(--warning-soft);
+  --color-error: var(--error);
+  --color-error-soft: var(--error-soft);
+  --color-destructive: var(--error);
+  --color-destructive-foreground: var(--primary-foreground);
+  --color-border: var(--border);
+  --color-border-strong: var(--border-strong);
+  --color-input: var(--border);
+  --color-ring: var(--focus-ring);
+  --color-focus-ring: var(--focus-ring);
+  --color-ring-offset-background: var(--background);
+
+  --shadow-soft: var(--shadow);
+  --shadow-lift: var(--shadow-hover);
+}
+
+:root {
+  --font-body: "Manrope", ui-sans-serif, system-ui, sans-serif;
+  --font-heading: "Bricolage Grotesque", "Manrope", ui-sans-serif, sans-serif;
+
+  --radius: 0.75rem;
+
+  --background: oklch(0.982 0.004 85);
+  --surface: oklch(1 0 0);
+  --surface-muted: oklch(0.955 0.006 85);
+  --text-primary: oklch(0.22 0.015 250);
+  --text-secondary: oklch(0.47 0.015 250);
+  --border: oklch(0.905 0.008 85);
+  --border-strong: oklch(0.78 0.015 230);
+
+  --primary: oklch(0.44 0.085 200);
+  --primary-hover: oklch(0.38 0.085 200);
+  --primary-soft: oklch(0.95 0.025 200);
+  --primary-foreground: oklch(0.99 0 0);
+
+  --accent: oklch(0.6 0.13 45);
+  --accent-soft: oklch(0.955 0.03 55);
+  --accent-foreground: oklch(0.99 0 0);
+
+  --success: oklch(0.48 0.11 155);
+  --success-soft: oklch(0.95 0.04 155);
+  --warning: oklch(0.52 0.12 70);
+  --warning-soft: oklch(0.96 0.05 85);
+  --error: oklch(0.52 0.19 27);
+  --error-soft: oklch(0.96 0.03 27);
+
+  --focus-ring: oklch(0.55 0.13 220);
+  --shadow: 0 1px 2px oklch(0.22 0.015 250 / 0.05), 0 2px 8px oklch(0.22 0.015 250 / 0.04);
+  --shadow-hover: 0 4px 10px oklch(0.22 0.015 250 / 0.06), 0 12px 28px oklch(0.22 0.015 250 / 0.08);
+}
+
+@layer base {
+  * {
+    border-color: var(--color-border);
+  }
+  html {
+    font-family: var(--font-body);
+    -webkit-font-smoothing: antialiased;
+  }
+  body {
+    background-color: var(--color-background);
+    color: var(--color-text-primary);
+  }
+  h1, h2, h3 {
+    font-family: var(--font-heading);
+    letter-spacing: -0.015em;
+  }
+  :focus-visible {
+    outline: 2px solid var(--focus-ring);
+    outline-offset: 2px;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+      animation-duration: 0.01ms !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
+}
